@@ -13,9 +13,9 @@ function App() {
   const [showRegister, setShowRegister] = useState(false);
 
   // Check if user is already logged in
-    useEffect(() => {
-     checkUser();
-     
+  useEffect(() => {
+    checkUser();
+
     // Listen for auth state changes
     // const { data: authListener } = supabase.auth.onAuthStateChange(
     //   async (event, session) => {
@@ -23,7 +23,7 @@ function App() {
     //     console.log("Session:", session);
     //     if (session?.user) {
     //       console.log("User after auth change:", session.user);
-          
+
     //       const { data: { user } } = await supabase.auth.getUser()
     //       console.log("Current user from getUser():", user);
     //       await fetchProfile(session.user);
@@ -63,7 +63,7 @@ function App() {
         .from("profiles")
         .select("*")
         .eq("id", authUser.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       console.log("Fetched profile data:", data);

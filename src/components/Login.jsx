@@ -35,9 +35,13 @@ function Login({ onToggle, onLogin }) {
         .from('profiles')
         .select('*')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
+
+      if (!profile) {
+        throw new Error('User profile not found. Please contact an administrator.');
+      }
 
       // Call parent callback with user data
       onLogin(data.user, profile);

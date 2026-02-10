@@ -6,7 +6,8 @@ function Register({ onToggle }) {
     name: '',
     email: '',
     password: '',
-    role: 'employee'
+    role: 'employee',
+    position: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -42,15 +43,16 @@ function Register({ onToggle }) {
             id: authData.user.id,
             name: formData.name,
             email: formData.email,
-            role: formData.role
+            role: formData.role,
+            position: formData.position
           }
         ]);
 
       if (profileError) throw profileError;
 
       setSuccess('Registration successful! You can now login.');
-      setFormData({ name: '', email: '', password: '', role: 'employee' });
-      
+      setFormData({ name: '', email: '', password: '', role: 'employee', position: '' });
+
       // Auto-switch to login after 2 seconds
       setTimeout(() => {
         onToggle();
@@ -88,6 +90,18 @@ function Register({ onToggle }) {
               onChange={handleChange}
               required
               placeholder="Enter your email"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Position</label>
+            <input
+              type="text"
+              name="position"
+              value={formData.position}
+              onChange={handleChange}
+              required
+              placeholder="e.g. Software Engineer"
             />
           </div>
 
