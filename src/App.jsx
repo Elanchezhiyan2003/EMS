@@ -15,29 +15,6 @@ function App() {
   // Check if user is already logged in
   useEffect(() => {
     checkUser();
-
-    // Listen for auth state changes
-    // const { data: authListener } = supabase.auth.onAuthStateChange(
-    //   async (event, session) => {
-    //     console.log("Auth event:", event);
-    //     console.log("Session:", session);
-    //     if (session?.user) {
-    //       console.log("User after auth change:", session.user);
-
-    //       const { data: { user } } = await supabase.auth.getUser()
-    //       console.log("Current user from getUser():", user);
-    //       await fetchProfile(session.user);
-    //       console.log("Profile after auth change:", profile);
-    //     } else {
-    //       setUser(null);
-    //       setProfile(null);
-    //     }
-    //   }
-    // );
-
-    // return () => {
-    //   authListener.subscription.unsubscribe();
-    // };
   }, []);
 
   const checkUser = async () => {
@@ -59,18 +36,41 @@ function App() {
   const fetchProfile = async (authUser) => {
     console.log("Fetching profile for user:", authUser);
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", authUser.id)
         .maybeSingle();
 
       if (error) throw error;
-      console.log("Fetched profile data:", data);
+
+      // SELF-HEALING: Create profile if it exists in Auth but not in Database
+      if (!data) {
+        console.log("Profile missing in DB, creating fallback...");
+        const meta = authUser.user_metadata || {};
+        const { data: newProfile, error: createError } = await supabase
+          .from("profiles")
+          .insert([
+            {
+              id: authUser.id,
+              name: meta.full_name || meta.name || authUser.email.split("@")[0],
+              email: authUser.email,
+              role: "employee",
+              position: "Member",
+            },
+          ])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        data = newProfile;
+      }
+
+      console.log("Final profile data:", data);
       setUser(authUser);
       setProfile(data);
     } catch (err) {
-      console.error("Error fetching profile:", err);
+      console.error("Error fetching/creating profile:", err);
     }
   };
 
@@ -93,6 +93,12 @@ function App() {
     setShowRegister(!showRegister);
   };
 
+  const handleProfileUpdate = () => {
+    if (user) {
+      fetchProfile(user);
+    }
+  };
+
   if (loading) {
     return (
       <div className="app-loading">
@@ -111,6 +117,7 @@ function App() {
           user={user}
           profile={profile}
           onLogout={handleLogout}
+          onProfileUpdate={handleProfileUpdate}
         />
       );
     }

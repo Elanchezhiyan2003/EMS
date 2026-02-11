@@ -27,7 +27,6 @@ function Register({ onToggle }) {
     setSuccess('');
 
     try {
-      // Register user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -35,7 +34,6 @@ function Register({ onToggle }) {
 
       if (authError) throw authError;
 
-      // Create profile entry
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
@@ -50,13 +48,9 @@ function Register({ onToggle }) {
 
       if (profileError) throw profileError;
 
-      setSuccess('Registration successful! You can now login.');
+      setSuccess('Registration successful! Please login.');
       setFormData({ name: '', email: '', password: '', role: 'employee', position: '' });
-
-      // Auto-switch to login after 2 seconds
-      setTimeout(() => {
-        onToggle();
-      }, 2000);
+      setTimeout(onToggle, 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -66,42 +60,54 @@ function Register({ onToggle }) {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
-        <h2>Register</h2>
+      <div className="auth-card animate-fade-in">
+        <h2>Join the Team</h2>
+        <p className="auth-subtext">Create your employee profile</p>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Name</label>
+            <label>Full Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="Enter your name"
+              placeholder="e.g. John Doe"
             />
           </div>
 
+          <div className="grid lg:grid-cols-2 gap-4">
+            <div className="form-group">
+              <label>Role</label>
+              <select name="role" value={formData.role} onChange={handleChange}>
+                <option value="employee">Employee</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Position</label>
+              <input
+                type="text"
+                name="position"
+                value={formData.position}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Designer"
+              />
+            </div>
+          </div>
+
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Position</label>
-            <input
-              type="text"
-              name="position"
-              value={formData.position}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Software Engineer"
+              placeholder="name@company.com"
             />
           </div>
 
@@ -114,30 +120,22 @@ function Register({ onToggle }) {
               onChange={handleChange}
               required
               minLength="6"
-              placeholder="Enter password (min 6 characters)"
+              placeholder="••••••••"
             />
           </div>
 
-          <div className="form-group">
-            <label>Role</label>
-            <select name="role" value={formData.role} onChange={handleChange}>
-              <option value="employee">Employee</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+          {error && <div className="error-message"><span>⚠️</span> {error}</div>}
+          {success && <div className="success-message"><span>✅</span> {success}</div>}
 
-          {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">{success}</div>}
-
-          <button type="submit" disabled={loading} className="btn-primary">
-            {loading ? 'Registering...' : 'Register'}
+          <button type="submit" disabled={loading} className="btn-primary w-full mt-4">
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
         <p className="toggle-text">
-          Already have an account?{' '}
+          Already a member?{' '}
           <span onClick={onToggle} className="toggle-link">
-            Login here
+            Log in here
           </span>
         </p>
       </div>
