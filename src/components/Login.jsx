@@ -72,56 +72,58 @@ function Login({ onToggle, onLogin }) {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card animate-fade-in">
-        <h2>Welcome Back</h2>
-        <p className="auth-subtext">Enter your credentials to access your dashboard</p>
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="name@company.com"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="••••••••"
-            />
-          </div>
-
-          {error && (
-            <div className="error-message">
-              <span>⚠️</span>
-              {error}
-            </div>
-          )}
-
-          <button type="submit" disabled={loading} className="btn-primary w-full mt-4">
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        <p className="toggle-text">
-          New to the company?{' '}
-          <span onClick={onToggle} className="toggle-link">
-            Create an account
-          </span>
-        </p>
-      </div>
+    <div className="auth-overlay">
+  <div className="auth-modal animate-scale-in">
+    <div className="auth-header">
+      <h2>Employee Check-In</h2>
+      <p>Sign in to access your dashboard</p>
     </div>
+
+    <form onSubmit={handleSubmit} className="auth-form">
+      <div className="form-group">
+        <label>Email Address</label>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          placeholder="name@company.com"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+          placeholder="••••••••"
+        />
+      </div>
+
+      {error && (
+        <div className="error-message">
+          ⚠️ {error}
+        </div>
+      )}
+
+      <button type="submit" disabled={loading} className="btn-primary">
+        {loading ? 'Signing in...' : 'Sign In'}
+      </button>
+    </form>
+
+    <p className="toggle-text">
+      New to the company?
+      <span onClick={onToggle} className="toggle-link">
+        Create an account
+      </span>
+    </p>
+  </div>
+</div>
+
   );
 }
 
