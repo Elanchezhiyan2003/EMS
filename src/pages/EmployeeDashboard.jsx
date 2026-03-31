@@ -1,76 +1,100 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../supabase/client';
-import CheckInOut from '../components/CheckInOut';
+import { useState } from "react";
+import CheckInOut from "../components/CheckInOut";
+import AttendancePage from "./AttendancePage";
+import LeaveRequest from "./LeaveRequest";
+import "./EmployeeDashboard.css";
+import ProfilePage from "./ProfilePage";
+import SubmissionPage from "./SubmissionPage";
 
 function EmployeeDashboard({ user, profile, onLogout }) {
-  const [attendanceHistory, setAttendanceHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch employee's attendance history
-  const fetchAttendanceHistory = async () => {
-    console.log("Fetching attendance history for user:", user.id);
-    try {
-      const { data, error } = await supabase
-        .from('attendance')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false });
-
-      if (error) throw error;
-
-      setAttendanceHistory(data);
-    } catch (err) {
-      console.error('Error fetching attendance:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAttendanceHistory();
-  }, [user.id]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeMenu, setActiveMenu] = useState("dashboard");
 
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <div>
-          <h1>Employee Dashboard</h1>
-          <p>Welcome, {profile.name}!</p>
-        </div>
-        <button onClick={onLogout} className="btn-logout">
+    <div className="dashboard-container">
+
+      {/* MENU BUTTON */}
+      <button
+        className="menu-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        ☰
+      </button>
+
+      {/* SIDEBAR */}
+      <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        <h2 className="logo">Employee Panel</h2>
+
+        <ul className="menu">
+          <li
+            className={activeMenu === "dashboard" ? "active" : ""}
+            onClick={() => setActiveMenu("dashboard")}
+          >
+            Dashboard
+          </li>
+
+          <li
+            className={activeMenu === "attendance" ? "active" : ""}
+            onClick={() => setActiveMenu("attendance")}
+          >
+            Attendance
+          </li>
+
+          <li
+            className={activeMenu === "profile" ? "active" : ""}
+            onClick={() => setActiveMenu("profile")}
+          >
+            Profile
+          </li>
+          <li
+            className={activeMenu === "leave" ? "active" : ""}
+            onClick={() => setActiveMenu("leave")}
+          >
+            Leave Management
+          </li>
+          <li
+            className={activeMenu === "submissions" ? "active" : ""}
+            onClick={() => setActiveMenu("submissions")}
+          >
+            Submissions
+          </li>
+          {/* other menu items can go here */}
+        </ul>
+
+        <button className="logout-btn" onClick={onLogout}>
           Logout
         </button>
       </div>
 
-      <CheckInOut userId={user.id} onCheck={fetchAttendanceHistory} />
+      {/* MAIN CONTENT */}
+      <div className="main-content">
+        {activeMenu === "dashboard" && (
+          <>
+            <div className="welcome-section">
+              <h1>Welcome, {profile?.name} 👋</h1>
+              <p>Have a productive day!</p>
+            </div>
 
-      <div className="attendance-section">
-        <h3>My Attendance History</h3>
-        {loading ? (
-          <div className="loading">Loading history...</div>
-        ) : attendanceHistory.length === 0 ? (
-          <p>No attendance records yet.</p>
-        ) : (
-          <table className="attendance-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Check In</th>
-                <th>Check Out</th>
-                <th>Work Done</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendanceHistory.map((record) => (
-                <tr key={record.id}>
-                  <td>{record.date}</td>
-                  <td>{record.check_in || '-'}</td>
-                  <td>{record.check_out || '-'}</td>
-                  <td>{record.work_done || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <div className="center-card">
+              <CheckInOut
+                userId={user.id}
+                onCheckout={() => setActiveMenu("submissions")}
+              />
+            </div>
+          </>
+        )}
+
+        {activeMenu === "attendance" && (
+          <AttendancePage user={user} />
+        )}
+        {activeMenu === "profile" && (
+          <ProfilePage user={user} />
+        )}
+        {activeMenu === "leave" && (
+          <LeaveRequest user={user} />
+        )}
+        {activeMenu === "submissions" && (
+          <SubmissionPage user={user} />
         )}
       </div>
     </div>

@@ -1,0 +1,189 @@
+/* ===== GLOBAL DASHBOARD LAYOUT ===== */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== MENU BUTTON ===== */
+.menu-toggle {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  background: #0f172a;
+  color: white;
+  border: none;
+  font-size: 20px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  
+}
+
+
+/* ===== SIDEBAR (PROFESSIONAL) ===== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  color: white;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.3s ease;
+  z-index: 1000;
+}
+
+/* Collapsed Sidebar */
+.sidebar:not(.open) {
+  transform: translateX(-100%);
+}
+
+/* ===== LOGO ===== */
+.logo {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top:50px;
+  
+}
+
+/* ===== MENU ===== */
+.menu {
+  margin-bottom: 150px;
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.25s ease;
+}
+
+.menu li:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.menu .active {
+  background: #3b82f6;
+  font-weight: 600;
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-btn {
+  background: #ef4444;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* ===== MAIN CONTENT (FIXED ALIGNMENT) ===== */
+.main-content {
+  flex: 1;
+  margin-left: 250px; /* KEY FIX */
+  padding: 40px 50px;
+  transition: all 0.3s ease;
+  width: calc(100% - 250px);
+}
+
+/* When sidebar closed */
+.sidebar:not(.open) ~ .main-content {
+  margin-left: 0;
+  width: 100%;
+}
+
+/* ===== WELCOME SECTION ===== */
+.welcome-section {
+  margin-top: 40px;
+  margin-bottom: 60px;
+}
+
+.welcome-section h1 {
+  font-size: 44px; /* Big like your image */
+  color: #0f172a;
+  text-align: center;
+}
+
+.welcome-section p {
+  color: #64748b;
+  margin-top: 10px;
+  font-size: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ===== CENTER CARD ===== */
+.center-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+/* ===== Attendance Section (Modern Card) ===== */
+.attendance-section {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* Title */
+.attendance-section h2 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 25px;
+}
+
+/* Table */
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.attendance-table thead {
+  background: #f8fafc;
+}
+
+.attendance-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #334155;
+}
+
+.attendance-table td {
+  padding: 16px;
+  border-top: 1px solid #f1f5f9;
+  color: #0f172a;
+}
+
+.attendance-table tbody tr:hover {
+  background: #f9fafb;
+}

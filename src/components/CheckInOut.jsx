@@ -1,207 +1,252 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../supabase/client';
+import { useState, useEffect } from "react";
+import { supabase } from "../supabase/client";
+import "./CheckInOut.css";
 
-function CheckInOut({ userId , onCheck }) {
+function CheckInOut({ userId, onCheckout }) {
   const [todayRecord, setTodayRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
-const [workDone, setWorkDone] = useState('');
+  const [message, setMessage] = useState("");
 
+  const [taskTitle, setTaskTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [timeSpent, setTimeSpent] = useState("");
+  const [file, setFile] = useState(null);
 
-  // Get today's date in YYYY-MM-DD format
-  const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-const openCheckoutModal = () => {
-  setWorkDone('');
-  setShowModal(true);
-};
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Get current time in HH:MM:SS format
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toTimeString().split(' ')[0];
-  };
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // Fetch today's attendance record
+  const getTodayISO = () => new Date().toISOString().split("T")[0];
+  const getCurrentTime = () => new Date().toTimeString().split(" ")[0];
+
   const fetchTodayRecord = async () => {
-    try {
-      const today = getTodayDate();
-      const { data, error } = await supabase
-        .from('attendance')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('date', today)
-        .single();
+    const { data, error } = await supabase
+      .from("attendance")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("date", getTodayISO())
+      .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows returned, which is fine
-        throw error;
-      }
-
-      setTodayRecord(data);
-    } catch (err) {
-      console.error('Error fetching today record:', err);
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error(error);
     }
+
+    setTodayRecord(data);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchTodayRecord();
+    if (userId) fetchTodayRecord();
   }, [userId]);
 
-  // Handle check-in
+  // ✅ CHECK IN
   const handleCheckIn = async () => {
+    if (todayRecord?.check_in) {
+      setMessage("You have already checked in today");
+      return;
+    }
+
     setActionLoading(true);
-    setMessage('');
 
     try {
-      const today = getTodayDate();
-      const currentTime = getCurrentTime();
-
       const { data, error } = await supabase
-        .from('attendance')
-        .insert([
-          {
-            user_id: userId,
-            date: today,
-            check_in: currentTime
-          }
-        ])
+        .from("attendance")
+        .insert({
+          user_id: userId,
+          date: getTodayISO(),
+          check_in: getCurrentTime(),
+        })
         .select()
         .single();
 
       if (error) throw error;
 
       setTodayRecord(data);
-      if (onCheck) onCheck();
-      setMessage('Check-in successful!');
+      setMessage("✅ Check-in successful");
+
     } catch (err) {
-      setMessage('Error: ' + err.message);
-    } finally {
-      setActionLoading(false);
+      setMessage(err.message);
     }
+
+    setActionLoading(false);
   };
 
 
-
-  // Handle check-out
+  // ✅ CHECK OUT WITH FILE UPLOAD
   const confirmCheckOut = async () => {
-  if (!workDone.trim()) {
-    setMessage('Work details required');
-    return;
-  }
+    if (!taskTitle || !description || !timeSpent) {
+      setMessage("Please fill all fields");
+      return;
+    }
 
-  setActionLoading(true);
-  setMessage('');
+    if (!todayRecord) {
+      setMessage("No check-in record found for today");
+      return;
+    }
 
-  try {
-    const currentTime = getCurrentTime();
-    console.log("checkout id :", todayRecord.id);
+    setActionLoading(true);
+    let fileUrl = todayRecord.file_url || null;
 
-    const { data, error } = await supabase
-      .from('attendance')
-      .update({
-        check_out: currentTime,
-        work_done: workDone
-      })
-      .eq('id', todayRecord.id)
-      .select()
-      .single();
+    try {
+      // ✅ Upload file to Supabase Storage
+      if (file) {
+        const fileName = `${userId}/${Date.now()}_${file.name}`;
 
-    if (error) throw error;
+        const { error: uploadError } = await supabase.storage
+          .from("documents")
+          .upload(fileName, file);
 
-    setTodayRecord(data);
-    if (onCheck) onCheck();
-    setMessage('Check-out successful!');
-    setShowModal(false);
+        if (uploadError) {
+          throw uploadError;
+        }
 
-  } catch (err) {
-    setMessage('Error: ' + err.message);
-  } finally {
+        const { data } = supabase.storage
+          .from("documents")
+          .getPublicUrl(fileName);
+
+        fileUrl = data.publicUrl;
+      }
+
+      // ✅ Update attendance row with FULL form data
+      const { data, error } = await supabase
+        .from("attendance")
+        .update({
+          check_out: getCurrentTime(),
+          task_title: taskTitle,
+          description: description,
+          time_spent: timeSpent,
+          file_url: fileUrl,
+        })
+        .eq("id", todayRecord.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // ✅ Update UI instantly
+      setTodayRecord(data);
+      setShowModal(false);
+      setMessage("🎉 Check-out + Form submitted successfully!");
+
+      // optional callback to redirect user or refresh
+      if (onCheckout) {
+        onCheckout();
+      }
+
+      // Reset form
+      setTaskTitle("");
+      setDescription("");
+      setTimeSpent("");
+      setFile(null);
+
+    } catch (err) {
+      setMessage(err.message);
+    }
+
     setActionLoading(false);
-  }
-};
-supabase
-  .channel('attendance')
-  .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: 'attendance' },
-    () => fetchTodayRecord()
-  )
-  .subscribe();
+  };
 
 
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
-  const hasCheckedIn = todayRecord && todayRecord.check_in;
-  const hasCheckedOut = todayRecord && todayRecord.check_out;
+  const hasCheckedIn = todayRecord?.check_in;
+  const hasCheckedOut = todayRecord?.check_out;
 
   return (
-    <div className="checkinout-container">
-      <h3>Today's Attendance</h3>
-      
-      <div className="status-info">
-        <p><strong>Date:</strong> {getTodayDate()}</p>
-        {hasCheckedIn && (
-          <p><strong>Check-in Time:</strong> {todayRecord.check_in}</p>
-        )}
-        {hasCheckedOut && (
-          <p><strong>Check-out Time:</strong> {todayRecord.check_out}</p>
-        )}
+    <div className="timer-card">
+      <div className="date">
+        {currentTime.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}
+      </div>
+      <div className="timer">
+        {currentTime.toTimeString().split(" ")[0]}
       </div>
 
-      <div className="action-buttons">
+      <div className="button-group">
         <button
           onClick={handleCheckIn}
           disabled={hasCheckedIn || actionLoading}
-          className="btn-primary"
+          className="checkin"
         >
-          {actionLoading ? 'Processing...' : 'Check In'}
+          Check In
         </button>
 
         <button
-          onClick={openCheckoutModal}
-          disabled={!hasCheckedIn || hasCheckedOut || actionLoading}
-          className="btn-secondary"
+          onClick={() => setShowModal(true)}
+          disabled={!hasCheckedIn || hasCheckedOut}
+          className="checkout"
         >
-          {actionLoading ? 'Processing...' : 'Check Out'}
+          Check Out
         </button>
       </div>
-{showModal && (
-  <div className="modal-overlay">
-    <div className="modal">
-      <h4>Today work details</h4>
 
-      <textarea
-        value={workDone}
-        onChange={(e) => setWorkDone(e.target.value)}
-        placeholder="Enter the details of the work done."
-      />
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2 className="modal-title">Check Out Form</h2>
 
-      <div className="modal-actions">
-        <button onClick={confirmCheckOut} disabled={actionLoading}>
-          Confirm Check Out
-        </button>
-        <button onClick={() => setShowModal(false)}>
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <div className="form-group">
+              <label>Task Title</label>
+              <input
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
+              />
+            </div>
 
-      {message && (
-        <div className={message.includes('Error') ? 'error-message' : 'success-message'}>
-          {message}
+            <div className="form-group">
+              <label>Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Upload Document</label>
+              <input
+                type="file"
+                className="file-input"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Time Spent</label>
+              <input
+                value={timeSpent}
+                onChange={(e) => setTimeSpent(e.target.value)}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button
+                onClick={confirmCheckOut}
+                className="submit-btn"
+                disabled={actionLoading}
+              >
+                Submit
+              </button>
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
+
+      {message && <div className="message">{message}</div>}
     </div>
   );
 }
