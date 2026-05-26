@@ -1,0 +1,61 @@
+.leave-page { padding: 24px }
+.leave-top h1 { margin: 0 0 6px 0; font-size: 26px; color:#111827 }
+.leave-sub { margin: 0 0 16px 0; color:#6b7280 }
+.leave-cards { display:flex; gap:12px; margin-bottom:16px }
+.lt-card { background:#fff; padding:14px 18px; border-radius:10px; box-shadow:0 10px 20px rgba(2,6,23,0.04); min-width:160px; color:#111827 }
+.lt-card .lt-num { font-size:20px; margin-top:6px; font-weight:700 }
+.lt-card.pending { border-left:6px solid #f59e0b }
+.lt-card.approved { border-left:6px solid #22c55e }
+.lt-card.denied { border-left:6px solid #ef4444 }
+
+/* make pending look consistent: small orange tag top-right */
+.lt-card .pending-tag { position:relative }
+.lt-card.pending .pending-tag::after { content: '' ; position:absolute; right:-10px; top:8px; width:6px; height:36px; background:#f59e0b; border-radius:6px }
+
+.upcoming-box h3{
+    color: black;
+}
+
+.leave-upcoming { margin-top:16px; margin-bottom:18px; display:flex; gap:16px; flex-wrap:wrap }
+.upcoming-box { background:#fff; padding:14px; border-radius:10px; box-shadow:0 8px 24px rgba(2,6,23,0.04) }
+.upcoming-table { width:100%; border-collapse:collapse }
+.upcoming-table th, .upcoming-table td { padding:10px 12px; border-bottom:1px solid #f3f4f6; color:#111827 }
+.upcoming-table thead th { background:#f8fafc; color:#111827 }
+
+.note-badge { background:#fff7ed; color:#92400e; padding:6px 8px; border-radius:6px; font-weight:700 }
+
+.lt-card { display:flex; flex-direction:column; justify-content:center }
+
+.summary-box { display:flex; gap:8px }
+.summary-item { background:#fff; padding:8px 12px; border-radius:8px; box-shadow:0 6px 14px rgba(2,6,23,0.04); font-weight:700 }
+
+.special-leave { margin-top:18px; display:flex; gap:20px; align-items:flex-start }
+.special-leave form { display:flex; gap:10px; align-items:center }
+.special-leave input { padding:8px 10px; border:1px solid #e5e7eb; border-radius:6px }
+.btn-apply-all { background:#3b82f6; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+.btn-gen { background:#10b981; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer }
+.year-table { margin-top:10px; border-collapse:collapse }
+.year-table th, .year-table td { padding:8px 10px; border-bottom:1px solid #f3f4f6 }
+
+/* manual holiday form placed under Upcoming heading */
+.manual-holiday-row { margin:12px 0 6px 0 }
+.manual-holiday-form { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+.manual-holiday-form input { padding:8px 10px; border:1px solid #e5e7eb; border-radius:6px }
+.manual-holiday-form button { padding:8px 12px }
+
+.holiday-list { margin-top:12px; margin-bottom:12px }
+.holiday-list h4 { margin:6px 0; font-size:16px; color:#111827 }
+
+.leave-list h3 { margin-bottom:10px; color:#111827 }
+.leave-table { width:100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 6px 20px rgba(15,23,42,0.04) }
+.leave-table th, .leave-table td { padding:12px 14px; text-align:left; border-bottom:1px solid #f3f4f6 }
+.leave-table thead th { background:#f3f4f6; font-weight:700; color:#1f2937 }
+.emp-cell { font-weight:600 }
+.reason { max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.status { text-transform:capitalize; padding:6px 8px; border-radius:6px; font-weight:700 }
+.status.pending { background: #fff7ed; color:#92400e }
+.status.approved { background: #ecfdf5; color:#065f46 }
+.status.denied { background: #fff1f2; color:#9f1239 }
+.btn-accept { background:#10b981; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; margin-right:8px }
+.btn-deny { background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:6px; cursor:pointer }
+.muted { color:#6b7280 }

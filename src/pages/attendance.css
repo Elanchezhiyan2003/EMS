@@ -1,0 +1,89 @@
+.attendance-page {
+  padding: 24px;
+}
+
+.attendance-top h1 {
+  margin: 0 0 4px 0;
+  font-size: 28px;
+  color: #1f2937;
+}
+.attendance-sub {
+  margin: 0 0 18px 0;
+  color: #6b7280;
+}
+
+.attendance-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.att-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+  padding: 18px;
+  border-radius: 12px;
+  align-items: center;
+  box-shadow: 0 10px 24px rgba(15,23,42,0.06);
+  min-height: 160px;
+}
+
+.att-avatar img {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid #fff;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.06);
+}
+
+.att-info-vertical { text-align: center }
+.att-name { margin: 8px 0 4px 0; font-size: 16px; color: #111827 }
+.att-role { font-size: 12px; color: #6b7280; margin-bottom: 8px }
+.att-badges { display:flex; gap:8px; justify-content:center; align-items:center }
+
+.badge { padding:6px 10px; border-radius:999px; font-weight:600; font-size:13px }
+.badge.month { background: rgba(34,197,94,0.12); color: #15803d }
+.badge.year { background: rgba(59,130,246,0.12); color: #1e40af }
+
+.profile-btn { margin-top:10px; background:linear-gradient(180deg,#fff,#f8fafc); border:1px solid #e5e7eb; padding:8px 14px; border-radius:8px; cursor:pointer; color:#0f172a }
+
+.attendance-list { margin-top: 6px }
+.attendance-list h3 { margin-bottom: 12px; color: #111827; font-weight:700 }
+
+.att-table { width:100%; border-collapse: collapse; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 6px 20px rgba(15,23,42,0.04) }
+.att-table th, .att-table td { padding:12px 14px; text-align:left; border-bottom:1px solid #f3f4f6 }
+.att-table thead th { background:#f3f4f6; font-weight:700; color:#1f2937 }
+.att-table tbody tr:hover { background:#fbfdff }
+
+.view-btn { background:transparent; border:1px solid #60a5fa; color:#1e40af; padding:6px 10px; border-radius:6px; cursor:pointer }
+
+.attendance-loading { padding:20px }
+
+/* profile modal */
+.profile-modal-overlay { position:fixed; inset:0; background:rgba(2,6,23,0.45); display:flex; align-items:center; justify-content:center; z-index:120 }
+.profile-modal { width:780px; max-width:95%; background:#fff; border-radius:12px; padding:20px; box-shadow:0 20px 60px rgba(2,6,23,0.3); }
+.profile-head { display:flex; gap:16px; align-items:center; margin-bottom:12px }
+.profile-head img { width:92px; height:92px; border-radius:50% }
+.profile-head h2 { margin:0; font-size:20px; color:#0f172a }
+.profile-head div { display:flex; flex-direction:column; justify-content:center }
+.profile-work h3 { color:#0f172a }
+.att-info { text-align:center }
+.att-info h4 { margin:8px 0 4px 0; font-size:16px; color:#111827 }
+.profile-position { color:#6b7280 }
+.profile-email { color:#4b5563; font-size:13px }
+.profile-work { margin-top:12px }
+.work-list { display:flex; flex-direction:column; gap:10px; max-height:280px; overflow:auto }
+.work-item { background:#f8fafc; padding:10px; border-radius:8px }
+.work-date { font-weight:700; color:#0f172a }
+.work-times { color:#374151; font-size:13px }
+.work-done { margin-top:6px; color:#374151; white-space:pre-wrap }
+.muted { color:#6b7280 }
+
+.work-item { border-left:4px solid rgba(59,130,246,0.12); padding-left:12px }
+.profile-actions { text-align:right; margin-top:12px }
+.btn-close { background:#ef4444; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+

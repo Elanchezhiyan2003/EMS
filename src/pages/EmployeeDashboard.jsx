@@ -73,6 +73,42 @@ function EmployeeDashboard({ user, profile, onLogout }) {
           </table>
         )}
       </div>
+      <div className="leave-request-section" style={{marginTop:24}}>
+        <h3>Request Leave</h3>
+        <form className="leave-request-form" onSubmit={async (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          const payload = {
+            user_id: user.id,
+            type: fd.get('type') || 'Annual',
+            from_date: fd.get('from_date'),
+            to_date: fd.get('to_date'),
+            days: fd.get('days') ? Number(fd.get('days')) : null,
+            reason: fd.get('reason'),
+            status: 'pending'
+          };
+          try {
+            const { error } = await supabase.from('leaves').insert([payload]);
+            if (error) throw error;
+            alert('Leave request submitted');
+            e.target.reset();
+          } catch (err) {
+            console.error('Failed to submit leave:', err);
+            alert('Failed to submit leave: ' + (err.message || err.error || err));
+          }
+        }} style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <select name="type" defaultValue="Annual" style={{padding:'6px 8px'}}>
+            <option>Annual</option>
+            <option>Sick</option>
+            <option>Other</option>
+          </select>
+          <input name="from_date" type="date" required style={{padding:'6px 8px'}} />
+          <input name="to_date" type="date" required style={{padding:'6px 8px'}} />
+          <input name="days" placeholder="Days (optional)" style={{width:120,padding:'6px 8px'}} />
+          <input name="reason" placeholder="Reason" style={{minWidth:200,padding:'6px 8px'}} />
+          <button type="submit" className="btn-apply-all" style={{marginLeft:6}}>Request Leave</button>
+        </form>
+      </div>
     </div>
   );
 }

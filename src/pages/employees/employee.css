@@ -1,0 +1,188 @@
+.employee-page {
+  padding: 20px;
+}
+.employee-header h2{
+  color: black;
+}
+/* Header */
+.employee-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.add-btn {
+  background: #4e73df;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Grid Layout */
+.employee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+/* Card */
+.employee-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.employee-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Image */
+.emp-img img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  object-fit: cover;
+}
+
+/* Text */
+.employee-card h3 {
+  margin: 5px 0;
+  font-size: 18px;
+}
+
+.employee-card .email {
+  color: #888;
+  font-size: 13px;
+}
+
+.employee-card .role {
+  color: #4e73df;
+  font-size: 14px;
+  margin: 6px 0;
+}
+
+/* Buttons */
+.card-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.edit-btn {
+  background: #36b9cc;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 5px;
+}
+
+.delete-btn {
+  background: #e74a3b;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 5px;
+}
+.employee-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.employee-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.employee-card:hover {
+  transform: translateY(-5px);
+}
+
+.emp-img img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 350px;
+  animation: pop 0.25s ease;
+}
+
+.modal h3 {
+  margin-bottom: 15px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: black;
+}
+
+.modal select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: black;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.save-btn {
+  background: #4e73df;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+}
+
+.cancel-btn {
+  background: #aaa;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+}
+
+@keyframes pop {
+  from { transform: scale(0.8); opacity: 0 }
+  to { transform: scale(1); opacity: 1 }
+}

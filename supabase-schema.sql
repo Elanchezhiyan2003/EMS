@@ -15,7 +15,8 @@ CREATE TABLE profiles (
   email TEXT NOT NULL UNIQUE,
   role TEXT NOT NULL CHECK (role IN ('employee', 'admin')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  position TEXT NOT NULL
+  position TEXT NOT NULL,
+  profile_photo TEXT
 );
 
 -- Create attendance table
@@ -116,5 +117,56 @@ CREATE POLICY "Users can insert own attendance"
 -- Allow users to update their own attendance
 CREATE POLICY "Users can update own attendance"
   ON attendance
+  FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- =============================================
+-- LEAVES TABLE
+-- =============================================
+
+-- Drop leaves if exists
+DROP TABLE IF EXISTS leaves CASCADE;
+
+CREATE TABLE leaves (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  type TEXT,
+  from_date DATE,
+  to_date DATE,
+  days INTEGER,
+  reason TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX idx_leaves_user_id ON leaves(user_id);
+CREATE INDEX idx_leaves_from_date ON leaves(from_date);
+
+-- Enable RLS on leaves
+ALTER TABLE leaves ENABLE ROW LEVEL SECURITY;
+
+-- Allow admins to manage leaves (select/insert/update/delete)
+CREATE POLICY "Admins manage leaves"
+  ON leaves
+  FOR ALL
+  USING (is_admin())
+  WITH CHECK (is_admin());
+
+-- Allow users to insert their own leave requests
+CREATE POLICY "Users can insert own leaves"
+  ON leaves
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+-- Allow users to read their own leaves (admins can read all via admin policy)
+CREATE POLICY "Users can read own leaves"
+  ON leaves
+  FOR SELECT
+  USING (auth.uid() = user_id OR is_admin());
+
+-- Allow users to update their own leave (e.g., cancel) -- admins cover all updates
+CREATE POLICY "Users can update own leaves"
+  ON leaves
   FOR UPDATE
   USING (auth.uid() = user_id);
