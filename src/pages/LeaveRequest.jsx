@@ -10,8 +10,7 @@ function LeaveRequest({ user }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showRequests, setShowRequests] = useState(false);
-  const [activeTab, setActiveTab] = useState('pending');
+  const [showRequests, setShowRequests] = useState(true);
 
   const fetchRequests = async () => {
     if (!user?.id) return;
@@ -65,28 +64,77 @@ function LeaveRequest({ user }) {
       setReason("");
       fetchRequests();
       setShowRequests(true);
+      alert("Leave request submitted successfully!");
     }
     setLoading(false);
   };
 
   return (
     <div className="leave-container">
-      <div className="leave-line">
-      <h2>Leave Request</h2>
-      <button
-        type="button"
-        onClick={() => {
-          fetchRequests();
-          setShowRequests(true);
-        }}
-        className="status-btn"
-      >
-        Status
-      </button>
+      <div className="leave-header">
+        <h2>Leave Management</h2>
+        {!showRequests ? (
+          <button
+            type="button"
+            onClick={() => {
+              fetchRequests();
+              setShowRequests(true);
+            }}
+            className="back-to-history-btn"
+          >
+            ← Back to History
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowRequests(false)}
+            className="primary-btn"
+          >
+            + Leave Request
+          </button>
+        )}
       </div>
       {error && <p className="error-text">{error}</p>}
 
-      {!showRequests ? (
+      {showRequests ? (
+        /* HISTORY VIEW */
+        <div className="request-list">
+          <h3>Request History</h3>
+
+          {loading && <p>Loading…</p>}
+          {!loading && requests.length === 0 && <p>No requests yet</p>}
+          {!loading && requests.length > 0 && (
+            <table className="attendance-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>From Date</th>
+                  <th>To Date</th>
+                  <th>Days</th>
+                  <th>Status</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((r) => (
+                  <tr key={r.id}>
+                    <td><strong>{r.type}</strong></td>
+                    <td>{r.from_date}</td>
+                    <td>{r.to_date}</td>
+                    <td>{r.days}</td>
+                    <td>
+                      <span className={`status-badge ${r.status}`}>
+                        {r.status}
+                      </span>
+                    </td>
+                    <td>{r.reason || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : (
         /* FORM VIEW */
         <form className="leave-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -129,113 +177,7 @@ function LeaveRequest({ user }) {
           <button type="submit" disabled={loading} className="submit-btn">
             {loading ? "Sending..." : "Submit Request"}
           </button>
-          {/* <button
-            type="button"
-            onClick={() => {
-              fetchRequests();
-              setShowRequests(true);
-            }}
-            className="status-btn"
-          >
-            Status
-          </button> */}
         </form>
-      ) : (
-        /* REQUESTS VIEW */
-        <div className="request-list">
-          <button
-            className="back-btn"
-            onClick={() => setShowRequests(false)}
-          >
-            ← New Request
-          </button>
-
-          <h3>Your Requests</h3>
-          <div className="request-tabs">
-            <button
-              className={activeTab === 'pending' ? 'active' : ''}
-              onClick={() => setActiveTab('pending')}
-            >
-              Pending
-            </button>
-            <button
-              className={activeTab === 'approved' ? 'active' : ''}
-              onClick={() => setActiveTab('approved')}
-            >
-              Approved
-            </button>
-          </div>
-
-          {loading && <p>Loading…</p>}
-          {!loading && requests.length === 0 && <p>No requests yet</p>}
-          {!loading && requests.length > 0 && (
-            <div>
-              {activeTab === 'pending' && (
-                <div className="request-column">
-                  <h4>Pending</h4>
-                  {requests.filter(r => r.status === 'pending').length === 0 ? (
-                    <p>No pending requests</p>
-                  ) : (
-                    <table className="attendance-table">
-                      <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>From</th>
-                          <th>To</th>
-                          <th>Days</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {requests
-                          .filter(r => r.status === 'pending')
-                          .map((r) => (
-                            <tr key={r.id}>
-                              <td>{r.type}</td>
-                              <td>{r.from_date}</td>
-                              <td>{r.to_date}</td>
-                              <td>{r.days}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'approved' && (
-                <div className="request-column">
-                  <h4>Approved</h4>
-                  {requests.filter(r => r.status === 'approved').length === 0 ? (
-                    <p>No approved requests</p>
-                  ) : (
-                    <table className="attendance-table">
-                      <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>From</th>
-                          <th>To</th>
-                          <th>Days</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {requests
-                          .filter(r => r.status === 'approved')
-                          .map((r) => (
-                            <tr key={r.id}>
-                              <td>{r.type}</td>
-                              <td>{r.from_date}</td>
-                              <td>{r.to_date}</td>
-                              <td>{r.days}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
       )}
     </div>
   );

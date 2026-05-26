@@ -170,9 +170,18 @@ function AttendancePage({ user }) {
     if (view === "month") {
       const formatted = formatLocalDate(date);
       const record = records.find((r) => r.date === formatted);
+      const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+      const today = new Date();
+      const isToday = formatLocalDate(date) === formatLocalDate(today);
 
-      if (record && record.check_in) {
-        return "present-day";
+      // Only mark working days (Monday-Friday) as present/absent
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        if (record && record.check_in) {
+          return isToday ? ["present-day", "today"] : "present-day";
+        } else if (!record) {
+          // No record means absent for working days
+          return isToday ? ["absent-day", "today"] : "absent-day";
+        }
       }
     }
     return null;
@@ -288,7 +297,6 @@ function AttendancePage({ user }) {
                         {rec.file_url ? (
                           <a
                             href={rec.file_url}
-                            target="_blank"
                             rel="noreferrer"
                           >
                             View

@@ -126,7 +126,6 @@ function SubmissionPage({ user }) {
                       {rec.file_url ? (
                         <a
                           href={rec.file_url}
-                          target="_blank"
                           rel="noreferrer"
                         >
                           View

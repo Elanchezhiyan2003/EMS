@@ -15,7 +15,8 @@ CREATE TABLE profiles (
   email TEXT NOT NULL UNIQUE,
   role TEXT NOT NULL CHECK (role IN ('employee', 'admin')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  position TEXT NOT NULL
+  position TEXT NOT NULL,
+  profile_picture_url TEXT
 );
 
 -- Create attendance table
@@ -81,7 +82,8 @@ CREATE POLICY "Allow authenticated users to insert profile"
 CREATE POLICY "Users can update own profile"
   ON profiles
   FOR UPDATE
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 -- Allow admins to read all profiles
 CREATE POLICY "Admins can read all profiles"

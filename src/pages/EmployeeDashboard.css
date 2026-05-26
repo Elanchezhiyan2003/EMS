@@ -4,6 +4,7 @@
   min-height: 100vh;
   background: #f1f5f9;
   font-family: "Poppins", sans-serif;
+  
 }
 
 /* ===== MENU BUTTON ===== */
@@ -104,7 +105,70 @@
   padding: 40px 50px;
   transition: all 0.3s ease;
   width: calc(100% - 250px);
+  position: relative;
 }
+
+/* ===== PROFILE HEADER ===== */
+.profile-header {
+  display: flex;
+  width: 100%;
+}
+
+.profile-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-left: auto;  /* 🔥 THIS pushes to right */
+}
+
+
+.profile-icon-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+
+  background: transparent;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  overflow: hidden;
+}
+
+.profile-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-icon-svg {
+  width: 60%;          /* 🔥 KEY FIX */
+  height: 60%;
+  stroke: white;
+}
+
+.profile-icon-btn:hover {
+  transform: scale(1.12);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+}
+
+.profile-icon-btn:active {
+  transform: scale(0.98);
+}
+
+.profile-name {
+  
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+
 
 /* When sidebar closed */
 .sidebar:not(.open) ~ .main-content {
@@ -116,6 +180,7 @@
 .welcome-section {
   margin-top: 40px;
   margin-bottom: 60px;
+  margin-right:100px;
 }
 
 .welcome-section h1 {
@@ -138,7 +203,110 @@
   justify-content: center;
   align-items: center;
   margin-top: 20px;
+  margin-right:100px;
 }
+
+.dashboard-calendar-end {
+  position: absolute;
+  right: 50px;
+  bottom: 30px;
+  width: 270px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+  padding: 14px;
+  text-align: center;
+}
+
+.dashboard-calendar-end h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.small-calendar {
+  width: 100% !important;
+  border: none !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 12px !important;
+}
+
+.small-calendar .react-calendar__tile {
+  padding: 4px !important;
+  font-size: 11px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.small-calendar .react-calendar__tile--active {
+  background: #2563eb !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.small-calendar .react-calendar__tile--now {
+  background: #fbbf24 !important;
+  color: #0f172a !important;
+  font-weight: 600;
+}
+
+.small-calendar .react-calendar__month-view__weekdays {
+  padding: 6px 0;
+  text-align: center;
+  font-weight: 600;
+  color: #475569;
+  font-size: 10px;
+}
+
+.small-calendar .react-calendar__navigation {
+  margin-bottom: 8px;
+}
+
+.small-calendar .react-calendar__navigation button {
+  font-size: 12px;
+  min-width: 26px;
+  padding: 3px 6px;
+}
+
+.present-day {
+  background: #dcfce7 !important; /* Light green for present */
+  color: #166534 !important;
+  font-weight: 600;
+}
+
+.present-day.today {
+  background: #dcfce7 !important; /* Ensure present-day overrides today */
+  color: #166534 !important;
+}
+
+.absent-day {
+  background: #fef2f2 !important; /* Light red for absent */
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+.absent-day.today {
+  background: #fef2f2 !important; /* Ensure absent-day overrides today */
+  color: #dc2626 !important;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-calendar-end {
+    right: 20px;
+    bottom: 20px;
+    width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-calendar-end {
+    position: static;
+    width: 100%;
+    margin-top: 24px;
+  }
+}
+
 /* ===== Attendance Section (Modern Card) ===== */
 .attendance-section {
   background: #ffffff;

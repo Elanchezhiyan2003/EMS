@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabase/client";
 import "./ProfilePage.css";
 
-function ProfilePage({ user }) {
+function ProfilePage({ user, onImageUpload }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -10,8 +10,12 @@ function ProfilePage({ user }) {
     name: "",
     position: "",
   });
+  
   const [updating, setUpdating] = useState(false);
   const [message, setMessage] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const fetchProfile = async () => {
     if (!user?.id) return;
@@ -77,7 +81,6 @@ function ProfilePage({ user }) {
         setMessage("Profile updated successfully!");
         setIsEditing(false);
 
-        // Clear message after 3 seconds
         setTimeout(() => setMessage(""), 3000);
       }
     } catch (err) {
@@ -94,124 +97,268 @@ function ProfilePage({ user }) {
     });
     setIsEditing(false);
     setMessage("");
+    setImageFile(null);
+    setImagePreview(null);
   };
 
-  if (loading) return <div className="loading">Loading Profile...</div>;
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-  if (!profile) return <div className="error">No profile found</div>;
+  const handleUploadImage = async () => {
+    if (!imageFile) {
+      setMessage("Please select an image");
+      return;
+    }
+
+    setUploadingImage(true);
+    setMessage("");
+
+    try {
+      const fileExt = imageFile.name.split(".").pop();
+      // Add timestamp to create unique filename and avoid caching issues
+      const timestamp = Date.now();
+      const fileName = `${user.id}-profile-${timestamp}.${fileExt}`;
+      const filePath = `profile-pictures/${fileName}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from("documents")
+        .upload(filePath, imageFile);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL with cache busting
+      const { data } = supabase.storage
+        .from("documents")
+        .getPublicUrl(filePath);
+
+      const imageUrl = data.publicUrl;
+
+      console.log("Uploading image to:", filePath);
+      console.log("Image URL:", imageUrl);
+
+      // Update profile with image URL
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ profile_picture_url: imageUrl })
+        .eq("id", user.id);
+
+      if (updateError) {
+        console.error("Update error:", updateError);
+        throw updateError;
+      }
+
+      console.log("Profile updated successfully");
+
+      setProfile((prev) => ({
+        ...prev,
+        profile_picture_url: imageUrl,
+      }));
+
+      setMessage("Profile picture updated successfully!");
+      setImageFile(null);
+      setImagePreview(null);
+
+      // Call callback to refresh dashboard profile icon
+      if (onImageUpload) {
+        onImageUpload();
+      }
+
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("Full error:", err);
+      setMessage("Error uploading image: " + err.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  if (loading) return <div className="profile-loading">Loading Profile...</div>;
+
+  if (!profile) return <div className="profile-error">No profile found</div>;
 
   return (
-    <div className="profile-container">
-      <h1 className="profile-title">My Profile</h1>
-
+    <div className="profile-wrapper">
       {message && (
         <div
-          className={`message ${
-            message.includes("success") ? "success" : "error"
+          className={`profile-alert ${
+            message.includes("success") ? "alert-success" : "alert-error"
           }`}
         >
           {message}
         </div>
       )}
 
-      <div className="profile-card">
-        {/* Profile Image (default) */}
-        <div className="profile-left">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-            alt="Profile"
-            className="profile-image"
-          />
+      <div className="profile-header">
+        <div className="profile-header-top">
+          <h1>My Profile</h1>
+          {!isEditing && (
+            <button
+              className="profile-edit-btn"
+              onClick={() => setIsEditing(true)}
+              disabled={updating}
+            >
+              ✏️ Edit
+            </button>
+          )}
         </div>
+      </div>
 
-        {/* Profile Details */}
-        <div className="profile-right">
+      <div className="profile-body">
+        {/* Avatar & Basic Info */}
+        <div className="profile-card-main">
+          <div className="profile-avatar-box">
+            <div className="avatar-icon">
+              {profile.profile_picture_url ? (
+                <img
+                  src={profile.profile_picture_url}
+                  alt="Profile"
+                  className="avatar-image"
+                />
+              ) : (
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              )}
+            </div>
+            <div className="avatar-info">
+              <h2>{profile.name}</h2>
+              <p>{profile.position || "Employee"}</p>
+            </div>
+          </div>
+
           {!isEditing ? (
-            <>
-              <div className="profile-field">
-                <label>Name</label>
+            <div className="profile-info-grid">
+              <div className="info-card">
+                <label>Full Name</label>
                 <p>{profile.name}</p>
               </div>
 
-              <div className="profile-field">
-                <label>Email</label>
+              <div className="info-card">
+                <label>Email Address</label>
                 <p>{profile.email}</p>
               </div>
 
-              <div className="profile-field">
+              <div className="info-card">
+                <label>Position</label>
+                <p>{profile.position || "Not specified"}</p>
+              </div>
+
+              <div className="info-card">
                 <label>Role</label>
                 <p>{profile.role}</p>
               </div>
-
-              <div className="profile-field">
-                <label>Position</label>
-                <p>{profile.position}</p>
+            </div>
+          ) : (
+            <form className="profile-form">
+              {/* Profile Picture Upload */}
+              <div className="form-group">
+                <label>Profile Picture</label>
+                <div className="image-upload-section">
+                  {imagePreview ? (
+                    <div className="image-preview">
+                      <img src={imagePreview} alt="Preview" />
+                    </div>
+                  ) : profile.profile_picture_url ? (
+                    <div className="image-preview">
+                      <img src={profile.profile_picture_url} alt="Current" />
+                    </div>
+                  ) : (
+                    <div className="image-preview empty">
+                      <p>No image selected</p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="form-input"
+                  />
+                  {imageFile && (
+                    <button
+                      type="button"
+                      className="btn-upload-image"
+                      onClick={handleUploadImage}
+                      disabled={uploadingImage}
+                    >
+                      {uploadingImage ? "Uploading..." : "Upload Image"}
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <button
-                className="edit-btn"
-                onClick={() => setIsEditing(true)}
-                disabled={updating}
-              >
-                Edit Profile
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="profile-field">
-                <label>Name</label>
+              <div className="form-group">
+                <label>Full Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={editData.name}
                   onChange={handleEditChange}
-                  className="edit-input"
-                  placeholder="Enter your name"
+                  className="form-input"
+                  placeholder="Enter your full name"
                 />
               </div>
 
-              <div className="profile-field">
-                <label>Email</label>
-                <p className="read-only">{profile.email}</p>
-                <small className="read-only-text">
-                  (Email cannot be changed here)
-                </small>
-              </div>
-
-              <div className="profile-field">
-                <label>Role</label>
-                <p className="read-only">{profile.role}</p>
-              </div>
-
-              <div className="profile-field">
+              <div className="form-group">
                 <label>Position</label>
                 <input
                   type="text"
                   name="position"
                   value={editData.position}
                   onChange={handleEditChange}
-                  className="edit-input"
-                  placeholder="Enter your position"
+                  className="form-input"
+                  placeholder="e.g., Senior Developer"
                 />
               </div>
 
-              <div className="button-group">
+              <div className="form-group disabled">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  value={profile.email}
+                  disabled
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group disabled">
+                <label>Role</label>
+                <input
+                  type="text"
+                  value={profile.role}
+                  disabled
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-actions">
                 <button
-                  className="save-btn"
+                  type="button"
+                  className="btn-save"
                   onClick={handleSaveProfile}
                   disabled={updating}
                 >
                   {updating ? "Saving..." : "Save Changes"}
                 </button>
                 <button
-                  className="cancel-btn"
+                  type="button"
+                  className="btn-cancel"
                   onClick={handleCancel}
                   disabled={updating}
                 >
                   Cancel
                 </button>
               </div>
-            </>
+            </form>
           )}
         </div>
       </div>
